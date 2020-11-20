@@ -1,0 +1,218 @@
+---
+title: "STATS 413 Hw2"
+author: "Shu Zhou"
+date: "2020/9/28"
+output:  
+    pdf_document:
+    latex_engine: xelatex
+    html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(ggthemes)
+library(corrplot)
+library(RColorBrewer)
+library(tidyverse)
+library(GGally)
+library(alr3)
+library(MASS)
+library(mvtnorm)
+library(caret)
+library(class)
+library(ISLR)
+```
+
+
+This is the Assignment 2 of STATS 413
+Author: Shu Zhou
+UMID: 19342932
+
+
+\section{Exercise 1}
+We cannot reject the hypothesis that “TV” and "radio" has significant impact on
+"Sales". But we can reject the hypothesis that "newspaper" is significant according
+to its P-value (<0.8599)
+
+
+\section{Exercise 3}
+__(a.)__  
+$Y = 50 + 20 \times GPA + 0.07 \times IQ + 35 \times Gender + 0.01 \times (GPA \times IQ) - 10 \times (GPA \times Gender)$  
+Point (iii) is correct, Since when GPA is high enough(which is greater than 3.5),
+males would earn more than females.
+
+__(b.)__
+
+For a female with IQ of 110 and a GPA of 4.0,   
+$Y = 50 + 20 \times 4 + 0.07 \times 110 + 35 \times 1 + 0.01 \times 4 \times 110 - 10 \times 4 \times 1 = 137.1 k dollars$
+
+__(c.)__
+
+False, since the coefficient $\beta_{4}$ is not zero, it reflects some interactions between GPA and experience.
+Since both GPA and IQ are great in great scales (GPA from 0-4 Experience can go to the hundreds),
+the impact of this interaction might cause a great impact on the salary.
+
+
+\section{Exercise 7}
+
+__Given:__
+The simple linear regression is calculated by
+
+$$ TSS = \sum_{i} \left ( y_{i}-\bar{y}\right )^{2} = \sum_{i} y_{i}^{2} $$
+
+$$ RSS = \sum_{i} \left ( y_{i}-\hat{y_{i}}\right )^{2} = \sum_i(y_i - \frac{\sum_jx_jy_j}{\sum_jx_j^2 x_i})^2$$
+
+
+
+$$ R^{2} = 1- \frac{RSS}{TSS} = \frac{\sum_jy_j^2 - (\sum_iy_i^2 - 2\sum_iy_i(\frac{\sum_jx_jy_j}{\sum_jx_j^2})x_i + \sum_i(\frac{\sum_jx_jy_j}{\sum_jx_j^2})^2x_i^2)}{\sum_jy_j^2} = \frac{2\frac{(\sum_ix_iy_i)^2}{\sum_jx_j^2} - \frac{(\sum_ix_iy_i)^2}{\sum_jx_j^2}}{\sum_jy_j^2} = (\frac{\sum_ix_iy_i}{\sum_jx_j\sum_jy_j})^2$$
+
+$$ Cor \left( X, Y\right) = \frac{\sum_ix_iy_i}{\sum_jx_j\sum_jy_j} $$
+Hence, Q.E.D.
+
+\section{Exercise 9}
+
+__(a.)__
+```{R}
+data("Auto")
+pairs(Auto)
+```
+
+__(b.)__
+```{r}
+cor(subset(Auto, select=-name))
+```
+
+
+__(c.)__
+```{r}
+fit <- lm(mpg ~ . - name, data = Auto)
+summary(fit)
+
+```
+
+\begin{itemize}
+\item There is a relationship between predictors and response.
+\item The variables "displacement", " weight", "acceleration","year" and "origin" have significant impact
+on mpg.
+\item The coefficient ot the “year” variable suggests that the an increase of 1 year would cause an increase of 0.7507727 in “mpg” .
+\end{itemize}
+
+__(d.)__
+```{R}
+par(mfrow=c(2,2))
+plot(fit)
+
+```
+The plot of residuals-fitted values indicates that there is no relationship between the residuals and fitted values, which reflects non-linearity.
+
+The plot of residual vs. Leverages indicates observation 14 has high leverage.
+
+
+__(e.)__
+From the correlation data, we can observe that 1.cylinders and displacement 2.displacement and weight 3. horsepower and weight have great correlation (>0.9)
+
+```{R}
+fit2 <- lm(mpg ~ cylinders * displacement+displacement * weight+horsepower*weight, data = Auto[, 1:8])
+summary(fit2)
+```
+According to the p-values, we can see that the interaction between 1. displacement and weight 2.  horsepower and weight are statistically significant.
+While the interaction between cylinders and displacement can be rejected and not significant.  
+
+
+
+
+__(f.)__
+
+
+```{r}
+fit0 <- lm(mpg~displacement+weight+year+origin, Auto[, 1:8])
+fit3 <- lm(mpg~displacement+I(sqrt(weight))+year+origin, Auto[, 1:8])
+fit4 <- lm(mpg~displacement+I(log(weight))+year+origin, Auto[, 1:8])
+fit5 <- lm(mpg~displacement+I(weight^2)+year+origin, Auto[, 1:8])
+summary(fit0)
+summary(fit3)
+summary(fit4)
+summary(fit5)
+```
+From the result, we can see that $\log(weight)$ and $\sqrt(weight)$ have greater coefficient than weight however $weight^2$have less coefficient.
+
+
+\section{Exercise 15}
+
+__(a.)__
+```{r}
+lmp <- function (modelobject) {
+    if (class(modelobject) != "lm") stop("Not an object of class 'lm' ")
+    f <- summary(modelobject)$fstatistic
+    p <- pf(f[1],f[2],f[3],lower.tail=F)
+    attributes(p) <- NULL
+    return(p)
+}
+data("Boston")
+fit.zn <- lm(crim ~ zn,data = Boston)
+fit.indus <- lm(crim ~ indus,data = Boston)
+fit.chas <- lm(crim ~ chas,data = Boston)
+fit.nox <- lm(crim ~ nox,data = Boston)
+fit.rm <- lm(crim ~ rm,data = Boston)
+fit.rad <- lm(crim ~ rad,data = Boston)
+fit.tax <- lm(crim ~ tax,data = Boston)
+fit.ptratio <- lm(crim ~ ptratio,data = Boston)
+fit.black <- lm(crim ~ black,data = Boston)
+fit.lstat <- lm(crim~lstat,data = Boston)
+fit.medv <- lm (crim~medv,data = Boston)
+lmp(fit.zn)
+lmp(fit.indus)
+lmp(fit.chas)
+lmp(fit.nox)
+lmp(fit.rm)
+lmp(fit.rad)
+lmp(fit.tax)
+lmp(fit.ptratio)
+lmp(fit.black)
+lmp(fit.lstat)
+lmp(fit.medv)
+```
+We can see that only the variable "chas" is non-significant.
+
+__(b.)__
+```{r}
+data("Boston")
+fit.lm <- lm(crim~., data=Boston)
+summary(fit.lm)
+```
+
+Hence, We can reject the null hypothesis for “zn”, “dis”, “rad”, “black” and “medv”.
+
+__(c.)__
+```{r}
+function(x){coefficients(lm(Boston[, x]))}
+results <- combn(names(Boston), 2, function(x) { coefficients(lm(Boston[, x])) })
+coefficents.univariate <- unlist(results)[seq(2,26,2)]
+coefficent.multiple <- coefficients(fit.lm)[-1]
+plot(coefficents.univariate, coefficent.multiple)
+```
+Only the variable "chas" is non-significant when performing univariate regression, however more variables become non-significant in mutiple regression due to the impact of other variables.
+
+
+__(d.)__
+
+```{r}
+data("Boston")
+
+lm(crim ~ poly(zn,3),data = Boston)
+lm(crim ~ poly(indus,3),data = Boston)
+lm(crim ~ poly(nox,3),data = Boston)
+lm(crim ~ poly(rm,3),data = Boston)
+lm(crim ~ poly(rad,3),data = Boston)
+lm(crim ~ poly(tax,3),data = Boston)
+lm(crim ~ poly(ptratio,3),data = Boston)
+lm(crim~poly(lstat,3),data = Boston)
+lm(crim~poly(medv,3),data = Boston)
+
+```
+From the result, we can see that there is evidence of non-linear association for all of the predictors except "chas".

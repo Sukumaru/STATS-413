@@ -1,0 +1,121 @@
+---
+title: "STATS 413 Hw1"
+author: "Shu Zhou"
+date: "2020/9/14"
+output:  
+    pdf_document:
+    latex_engine: xelatex
+    html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(ggthemes)
+library(corrplot)
+library(RColorBrewer)
+library(tidyverse)
+library(GGally)
+library(alr3)
+UN11 <- fread('./extdata/UN11.csv') 
+Rateprof <- fread('./extdata/Rateprof.csv') 
+Htwt <- fread("./extdata/Htwt.csv")
+```
+
+```{r }
+##This is the Assignment 1 of STATS 413
+##Author: Shu Zhou
+##UMID: 19342932
+```
+## 1. United Nations Data
+```{r }
+##(a)
+##The predictor variable is ppgdp and the response variable is fertility.
+
+##(b)
+ggplot(UN11,  aes (y=fertility, x=ppgdp ) )+ geom_point()+ 
+  scale_fill_brewer(palette = "OrRd")+
+  geom_smooth(method = "lm", col = "red", fill = "lightsteelblue3", size = 1.2)+
+ geom_smooth(method = "loess", col = "dodgerblue4", fill = "lightsteelblue3",
+             size = 1.2)+
+  ggtitle( "Fertility versus ppgdp")+
+  labs(x = "ppgdp", y = "fertility")+
+  theme_economist()+
+  theme(axis.text.x = element_text(size=10), 
+        axis.text.y = element_text(size=10), legend.position = "right")
+
+##A straight line is not plausible for a summary to this relationship
+
+##c
+UN11$logPpgdp = log(UN11$ppgdp)
+UN11$logFert = log(UN11$fertility)
+ggplot(UN11,  aes (y=logFert, x=logPpgdp ) )+ geom_point()+ 
+  scale_fill_brewer(palette = "OrRd")+
+  geom_smooth(method = "lm", col = "red", fill = "lightsteelblue3", size = 1.2)+
+ geom_smooth(method = "loess", col = "dodgerblue4", fill = "lightsteelblue3",
+             size = 1.2)+
+  ggtitle( "log(Fertility) versus log(ppgdp)")+
+  labs(x = "log(ppgdp)", y = "log(Fertility)")+
+  theme_economist()+
+  theme(axis.text.x = element_text(size=10), 
+        axis.text.y = element_text(size=10), legend.position = "right")
+##The simple linear regression mode is much more plausible for a summary to 
+##this relationship, which shows that the higher log(PPgdp), the lower 
+## log(Fertility)
+
+UN11$log2Ppgdp = log(UN11$ppgdp,base = 2)
+UN11$log2Fert = log(UN11$fertility, base = 2 )
+ggplot(UN11,  aes (y=log2Fert, x=log2Ppgdp ) )+ geom_point()+ 
+  scale_fill_brewer(palette = "OrRd")+
+  geom_smooth(method = "lm", col = "red", fill = "lightsteelblue3", size = 1.2)+
+ geom_smooth(method = "loess", col = "dodgerblue4", fill = "lightsteelblue3",
+             size = 1.2)+
+  ggtitle( "log2(Fertility) versus log2(ppgdp)")+
+  labs(x = "log2(ppgdp)", y = "log2(Fertility)")+
+  theme_economist()+
+  theme(axis.text.x = element_text(size=10), 
+        axis.text.y = element_text(size=10), legend.position = "right")
+##Hence,the shape of the graph won't change, but the values on the axes will.
+```
+
+## 2.Professor ratings Data
+```{r}
+ggpairs (Rateprof[,9: 13])
+```
+## 3.Height and Weight data
+```{r}
+##(a)
+ggplot(Htwt,  aes (y=wt, x=ht ) )+ geom_point()+ 
+  scale_fill_brewer(palette = "OrRd")+
+  ggtitle( "Weight versus Height")+
+  labs(x = "Height", y = "Weight")+
+  theme_economist()+
+  theme(axis.text.x = element_text(size=10), 
+        axis.text.y = element_text(size=10), legend.position = "right")
+
+##A straight line is not plausible for a summary to this relationship, since 
+## there is no clear linear pattern between this two variables
+
+##(b)
+lm(Htwt$wt ~ Htwt$ht)
+
+ggplot(Htwt,  aes (y=wt, x=ht ) )+ geom_point()+ 
+  scale_fill_brewer(palette = "OrRd")+
+  geom_smooth(method = "lm", col = "red", size = 1.2)+
+  ggtitle( "Weight versus Height")+
+  labs(x = "Height", y = "Weight")+
+  theme_economist()+
+  theme(axis.text.x = element_text(size=10), 
+        axis.text.y = element_text(size=10), legend.position = "right")
+
+##(c)
+fm<-lm(Htwt$wt ~ Htwt$ht)
+summary(fm)
+summary(fm)$sigma^2          ##Estimate of Sigma^2
+summary(fm)$coefficient[1,2] ##Estimated Std Error of Intercept
+summary(fm)$coefficient[2,2] ##Estimated Std Error of Slope
+```

@@ -1,0 +1,48 @@
+---
+title: "Prelab5"
+author: "Shu Zhou"
+date: "2020/10/28"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(ggthemes)
+library(corrplot)
+library(RColorBrewer)
+library(tidyverse)
+library(MASS)
+library(mvtnorm)
+```
+
+
+```{r }
+##This is the Prelab5 of STATS 413
+##Author: Shu Zhou
+##UMID: 19342932
+```
+
+__(a.)__
+Fit a multiple regression model to predict Sales using Price,
+Urban, and US.
+```{r}
+library(ISLR)
+data(Carseats)
+model1<-lm(Sales~Price+Urban+US, data=Carseats)
+summary(model1)
+```
+
+__(b.)__
+Provide an interpretation of each coefficient in the model. Be
+careful—some of the variables in the model are qualitative!
+
+\begin{itemize}
+\item{Price:} (-0.054459) unit of increase in Price would cause a 54.459 decrease in Sales, the variable Price is statistically significant.
+\item {UrbanYes:} (-0.021916): Sales are 22 lower for Urban locations, the variable Urban is not statistically significant.
+\item {USYes:} (1.200573): Sales are 1200.573 higher in the US locations, the variable US is statistically significant.
+\end{itemize}
+
+

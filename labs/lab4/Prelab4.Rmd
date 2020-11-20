@@ -1,0 +1,54 @@
+---
+title: "Prelab4"
+author: "Shu Zhou"
+date: "2020/9/30"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(ggthemes)
+library(corrplot)
+library(RColorBrewer)
+library(tidyverse)
+library(MASS)
+library(mvtnorm)
+```
+
+
+```{r }
+##This is the Prelab4 of STATS 413
+##Author: Shu Zhou
+##UMID: 19342932
+```
+
+__(a.)__
+```{r}
+set.seed (1)
+x=rnorm (100)
+y=2*x+rnorm (100)
+summary(lm(y~x + 0))
+```
+
+$\hat{\beta_{x}} = 1.9939$, $Std.err = 0.1065$, $t-statistic = 18.73$, $P-value = 2e-16$
+The residual standard error is almost not related to the coefficient estimate.
+The p-value is statistically significant.
+
+
+__(b.)__
+```{r}
+summary(lm(x ~ y + 0))
+```
+$\hat{\beta_{x}} =  0.39111$, $Std.err = 0.02089$, $t-statistic = 18.73$, $P-value = 2e-16$
+The residual standard error is almost not related to the coefficient estimate.
+The p-value is statistically significant.
+
+
+__(c.)__
+The t-value and p-statistic are the same, only the estimate of coefficients are different,
+which reflects the relationship
+$y = 2x + \varepsilon$
+

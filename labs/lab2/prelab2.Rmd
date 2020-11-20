@@ -1,0 +1,71 @@
+---
+title: "Prelab2 Shu Zhou 19342932"
+author: "Shu Zhou"
+date: "2020/9/9"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(ggthemes)
+library(corrplot)
+library(RColorBrewer)
+library(tidyverse)
+library(MASS)
+library(mvtnorm)
+```
+
+
+```{r }
+##This is the Prelab2 of STATS 413
+##Author: Shu Zhou
+##UMID: 19342932
+```
+__(1.)__
+```{r}
+#install.packages("ISLR")
+#library(ISLR)
+```
+__(2.)__
+```{r }
+DotProduct <- function(a,b) {
+  c = 0;
+  if(length(a)!=length(b)){
+    warning("argument vectors have different length: returningNA")
+    return(NA_real_)
+   }
+   for(i in 1:length(a)){
+     c= c + a[i]*b[i]
+   }
+  return(c)
+}
+#Test Case #1
+a = c(1,2,3,4,5)
+b = c(2,3,4,5,6)
+DotProduct(a,b)
+
+#Test Case #2
+norm = rnorm(10, mean=0, sd=1)
+exp = rexp(10, rate=1) 
+DotProduct(norm,exp)
+
+#Test Case #3
+pois = rpois(10, lambda =1)
+t = rt(11, df = 1) 
+DotProduct(pois,t)
+```
+__(3.)__
+```{r}
+x = c(1:10) #Create a vector x containing the ordered integers from 1 to 10.
+err = mvrnorm(10, mu = rep(0, 10),Sigma = diag(10) ) #statistical error vector 
+                     # follows a 10-dimensional multivariate normal distribution
+y = x+err
+
+lm(y~x)               #Linear Regression
+```

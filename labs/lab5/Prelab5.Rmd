@@ -1,0 +1,59 @@
+---
+title: "Prelab5"
+author: "Shu Zhou"
+date: "2020/10/28"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(ggthemes)
+library(corrplot)
+library(RColorBrewer)
+library(tidyverse)
+library(MASS)
+library(mvtnorm)
+```
+
+
+```{r }
+##This is the Prelab5 of STATS 413
+##Author: Shu Zhou
+##UMID: 19342932
+```
+
+__(a.)__
+Using the which function. Generate a vector Z of 100 iid standard normal variables. Use
+which to find the indices for which Zi > 1.8. Print the values of Zi for these indices. Use
+which to find the index of maxi Zi and maxi |Zi|.
+```{r}
+set.seed(1)
+Z=rnorm (100,0,1)
+Z_I<-which(Z>1,8)#Zi > 1.8
+Z_I;Z[Z_I]# Print the values of Zi for these indices
+which(Z==max(Z)) #maxi Zi
+which(abs(Z)==max(abs(Z)))#maxi |Zi|
+```
+
+__(b.)__
+Converting data frames to matrices. Import the Carseats dataset from the ISLR
+package. Convert the variable Sales to a vector of length 400. Remove the three categorical
+variables, then convert the remaining continuous variables in the dataset to a matrix of
+size 400 × 7. Directly compute the estimate $\beta$ for the regression of Sales on these seven
+continuous variables. (There is no need to add a column for the intercept.) (Hint: the
+functions data.matrix and crossprod may be helpful here.)
+```{r}
+library(ISLR)
+data(Carseats)
+summary(Carseats)
+y=Carseats$Sales
+x=as.matrix(Carseats[,c(-1,-7,-10,-11)])
+model_1<-lm(y~x)
+solve(t(x) %*% x) %*% t(x) %*% y #directly calculate the esitmate hat(beta)
+summary(model_1) #Same as directly calculate the esitmate hat(beta)
+```
+
+

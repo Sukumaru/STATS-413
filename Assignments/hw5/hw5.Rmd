@@ -1,0 +1,210 @@
+---
+title: "STATS 413 Hw5"
+author: "Shu Zhou"
+date: "2020/11/15"
+output:  
+    pdf_document:
+    latex_engine: xelatex
+    html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(ggthemes)
+library(corrplot)
+library(RColorBrewer)
+library(tidyverse)
+library(GGally)
+library(alr3)
+library(MASS)
+library(mvtnorm)
+library(caret)
+library(class)
+library(ISLR)
+library(boot)
+```
+
+
+This is the Assignment 5 of STATS 413
+Author: Shu Zhou
+UMID: 19342932
+
+
+\section{Exercise 7.1}
+The estimate of coefficients, standard errors, F-tests are the same between Sue's and Joe's analyses. However, the $\sigma^{2}$ of Joe's analysis is two times of Sue's.
+
+
+\section{Exercise 7.10}
+__(7.10.1)__
+```{r}
+fuel2001<-read.csv("fuel2001.csv")
+model_OLS <- lm(FuelC ~ Tax+Drivers+Income+log(Miles), data = fuel2001)
+#bootstrap
+boot1 <- Boot(model_OLS, R=999)
+confint(boot1, type="bca")
+# Compare with normal
+confint(model_OLS)
+```
+
+__(7.10.2)___
+```{r}
+hist(boot1)
+```
+>ISLR: 
+
+\section{Exercise 8}
+__Part a)__
+
+```{r}
+set.seed(1)
+y <- rnorm(100) 
+x <- rnorm(100)
+y <- x - 2*x^2 + rnorm(100)
+```
+$n = 100$ are observations
+
+$p = 2$ are features
+
+$Y = X - 2X^2 + \epsilon$
+
+__Part b)__
+
+```{r}
+plot(x, y)
+```
+There is a quadratic relationship between x and y,
+
+__Part c)__
+
+```{r}
+set.seed(1)
+df <- data.frame(y, x, x2=x^2, x3=x^3, x4=x^4)
+fit1 <- glm(y ~ x, data=df)
+cv.err1 <- cv.glm(df, fit1)
+cv.err1$delta
+fit2 <- glm(y ~ x + x2, data=df)
+cv.err2 <- cv.glm(df, fit2)
+cv.err2$delta
+fit3 <- glm(y ~ x + x2 + x3, data=df)
+cv.err3 <- cv.glm(df, fit3)
+cv.err3$delta
+fit4 <- glm(y ~ x + x2 + x3 + x4, data=df)
+cv.err4 <- cv.glm(df, fit4)
+cv.err4$delta
+```
+
+__Part d)__
+
+```{r}
+set.seed(2020)
+df <- data.frame(y, x, x2=x^2, x3=x^3, x4=x^4)
+fit1 <- glm(y ~ x, data=df)
+cv.err1 <- cv.glm(df, fit1)
+cv.err1$delta
+fit2 <- glm(y ~ x + x2, data=df)
+cv.err2 <- cv.glm(df, fit2)
+cv.err2$delta
+fit3 <- glm(y ~ x + x2 + x3, data=df)
+cv.err3 <- cv.glm(df, fit3)
+cv.err3$delta
+fit4 <- glm(y ~ x + x2 + x3 + x4, data=df)
+cv.err4 <- cv.glm(df, fit4)
+cv.err4$delta
+```
+The results are the same. Since the LOOCV methods uses all the other methods as the reference for prediction.
+
+__Part e)__
+
+Model (ii) using $X$ and $X^2$ had the lowest error, which shows that our prediction is correct. Since the true model was generated using a quadratic formula.
+
+__Part f)__
+
+```{r}
+fit0 <- lm(y ~ poly(x,4))
+summary(fit0)
+```
+
+Summary shows that only $X$ and $X^2$ are statistically significant predictors. Which agrees with our cross-validation results in part (e).
+
+
+\section{Exercise 9}
+__Part a)__
+
+```{r, warning=FALSE, message=FALSE}
+data(Boston)
+mu <- mean(Boston$medv)
+mu
+```
+
+__Part b)__
+
+```{r}
+sd <- sd(Boston$medv)/sqrt(nrow(Boston))
+sd
+```
+The standard error of the sample mean is equal to the standard deviation of the dataset divided by the number of observations.
+__Part c)__
+
+```{r}
+set.seed(1)
+mean.fn <- function(var, id) {
+  return(mean(var[id]))
+}
+
+boot.res <- boot(Boston$medv, mean.fn, R=200)
+boot.res
+```
+
+From bootstrap with R=200, our estimation of the std.err is 0.43, which is close to 0.41.
+
+__Part d)__
+
+```{r}
+boot.res$t0 - 2*sd(boot.res$t)  # lower bound
+boot.res$t0 + 2*sd(boot.res$t)  # upper bound
+t.test(Boston$medv)
+```
+The 95% confidence interval of the t-test result is approximately equal to the lower and upper bound found by bootstrap.
+__Part e)__
+
+```{r}
+median <- median(Boston$medv)
+median
+```
+
+__Part f)__
+
+```{r}
+set.seed(1)
+median.fn <- function(var, id) {
+  return(median(var[id]))
+}
+boot.res <- boot(Boston$medv, median.fn, R=100)
+boot.res
+```
+
+Estimated standard error is 0.3461 with r = 100.
+
+__Part g)__
+
+```{r}
+mu0.1 <- quantile(Boston$medv, 0.1)
+mu0.1
+```
+
+__Part h)__
+
+```{r}
+set.seed(1)
+quantile10 <- function(var, id) {
+  return(quantile(var[id], 0.1))
+}
+(boot.res <- boot(Boston$medv, quantile10, R=100))
+```
+
+Estimated standard error is 0.537

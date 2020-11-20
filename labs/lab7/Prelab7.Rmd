@@ -1,0 +1,55 @@
+---
+title: "Prelab7"
+author: "Shu Zhou"
+date: "2020/11/11"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(ggthemes)
+library(corrplot)
+library(RColorBrewer)
+library(tidyverse)
+library(MASS)
+library(mvtnorm)
+library(car)
+```
+
+
+```{r }
+##This is the Prelab7 of STATS 413
+##Author: Shu Zhou
+##UMID: 19342932
+```
+
+__(a.)__
+```{r}
+florida<-read.csv("Florida.csv")
+plot(Buchanan~Bush,data=florida)
+outlierTest(lm(Buchanan~Bush,data=florida),cutoff = 1)
+#50 is the index of Palm-beach, with extreme small Bonferroni p-value,
+#hence it should be regarded as an outlier
+
+#13 is the index of Dade. The p-value is 0.1 which is greater than 0.01
+#hence we should not regard this observation as an outlier.
+```
+
+
+
+__(b.)__
+```{r}
+plot(log(Buchanan)~log(Bush),data=florida)
+outlierTest(lm(log(Buchanan)~log(Bush),data=florida),cutoff = 1)
+#When we take the logarithm of both regression components, we can see that only 
+#obseravtion #50(Palm-beach) is appears in the outlierTest, which shows that it
+#is the only outlier of the regression.
+
+
+
+
+```
+

@@ -1,0 +1,74 @@
+---
+title: "Prelab8"
+author: "Shu Zhou"
+date: "2020/11/17"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(ggthemes)
+library(corrplot)
+library(RColorBrewer)
+library(tidyverse)
+library(MASS)
+library(mvtnorm)
+library(car)
+```
+
+
+```{r }
+##This is the Prelab8 of STATS 413
+##Author: Shu Zhou
+##UMID: 19342932
+```
+
+__(a.)__
+```{r}
+library(ISLR)
+data(Hitters)
+Hitters<-na.omit(Hitters)
+```
+
+
+
+__(b.)__
+```{r}
+library(leaps)
+regfit.full=regsubsets (Salary~.,Hitters )
+summary(regfit.full)
+regfit.full=regsubsets (Salary~.,data=Hitters,nvmax =19)
+reg.summary =summary (regfit.full)
+names(reg.summary)
+par(mfrow =c(2,2))
+plot(reg.summary$rss ,xlab=" Number of Variables ",ylab=" RSS",
+type="l")
+plot(reg.summary$adjr2 ,xlab =" Number of Variables ",
+ylab=" Adjusted RSq",type="l")
+
+which.max (reg.summary$adjr2)
+points (11, reg.summary$adjr2[11], col ="red",cex =2, pch =20)
+
+
+plot(reg.summary$cp ,xlab =" Number of Variables ",ylab="Cp",
+type="l")
+which.min (reg.summary$cp )
+
+points (10, reg.summary$cp [10], col ="red",cex =2, pch =20)
+which.min (reg.summary$bic )
+
+plot(reg.summary$bic ,xlab=" Number of Variables ",ylab=" BIC",
+type="l")
+points (6, reg.summary$bic [6], col =" red",cex =2, pch =20)
+
+plot(regfit.full ,scale ="r2")
+plot(regfit.full ,scale ="adjr2")
+plot(regfit.full ,scale ="Cp")
+plot(regfit.full ,scale ="bic")
+
+coef(regfit.full ,6)
+```
+

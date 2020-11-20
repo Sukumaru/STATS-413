@@ -1,0 +1,55 @@
+---
+title: "Prelab3"
+author: "Shu Zhou"
+date: "2020/9/23"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(ggthemes)
+library(corrplot)
+library(RColorBrewer)
+library(tidyverse)
+library(MASS)
+library(mvtnorm)
+```
+
+
+```{r }
+##This is the Prelab3 of STATS 413
+##Author: Shu Zhou
+##UMID: 19342932
+```
+
+__(1.)__
+Quantitative predictor illustrates the numerical features of a variable, which 
+must be represented by numeric values.
+
+Qualitative predictor illustrates the categorical features of a variable, which 
+cannot be represented by numeric values.
+
+According to a height of a person, age is a good quantitative predictor, while
+gender is a quanlitative predictor.
+
+
+__(2.)__
+```{r}
+y<-c(c(1:5),c(11:15)) #y containing values 1-5 and 11-15
+
+x<-factor(rep(c("YES", "NO"), each = 5)) #x containing YES as first 5 , NO as last 5
+reg<-lm(y~x)
+summary(reg) 
+
+#The P-value based on X is 8.488e-06, which makes sense on how we 
+#generated the data
+
+z<-rep(c(1, 0), each = 5)
+typeof(z)
+summary(lm(y~z))
+
+#I could not observe any change in the result, since the P-value is the same.
+```

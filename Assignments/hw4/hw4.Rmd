@@ -1,0 +1,137 @@
+---
+title: "STATS 413 Hw4"
+author: "Shu Zhou"
+date: "2020/11/4"
+output:  
+    pdf_document:
+    latex_engine: xelatex
+    html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(ggthemes)
+library(corrplot)
+library(RColorBrewer)
+library(tidyverse)
+library(GGally)
+library(alr3)
+library(MASS)
+library(mvtnorm)
+library(caret)
+library(class)
+library(ISLR)
+```
+
+
+This is the Assignment 4 of STATS 413
+Author: Shu Zhou
+UMID: 19342932
+
+
+\section{Exercise 5.17}
+__(5.17.1.)__
+```{r}
+data("salary")
+cols <- character(nrow(salary))
+cols[] <- "black"
+cols[salary$Sex == 1] <- "red"
+cols[salary$Sex == 0] <- "blue"
+pairs(salary[,c(1:6)],col = cols, main = "Scatter plot of the salary data")
+```
+
+In this plot we use blue points to represent Males and red points to represent females. 
+From this plot, we can see that
+\begin{itemize}
+\item Females generally have fewer years in rank. 
+\item The variance of salary is much higher with a person who own a master's degree. 
+\item Females generally have a lower salary than males.
+\item The mean function of YSdeg might have a different slope for males and females.
+\end{itemize}
+__(5.17.2)__
+```{r}
+salary<-read.csv("salary.csv")
+salary<-as.data.frame(salary)
+summary(lm(salary~sex,data= salary))
+```
+The significance level is 0.0706. Hence the sex factor is not statistically significant, we cannot reject the null hypothesis with 95% of confidence. The point estimate of the Sex effect is $3340 in favor of men.
+__(5.17.3)___
+```{r}
+model1<-lm(salary~.,data= salary)
+summary(model1)
+confint(model1)["sexMale", , drop=FALSE]
+```
+We can see that the sex effect is much higher for females with higher salaries. Although we cannot reject
+our null hypothesis according to P-value, we cannot say that sex has no impact.
+
+__(5.17.4)___
+```{r}
+model2<-lm(salary~.-rank,data= salary)
+summary(model2)
+```
+After the factor degree is excluded, we can see that the most variables become less significant.
+Hence we can argue that this sample is not unbiased and it is not a good choice to rely on this sample.
+
+
+\section{Exercise 8.3}
+
+__(8.3.1)__
+```{r}
+water<-read.csv("water.csv")
+cor(water)
+pairs(water[ , 2:9])
+```
+\begin{itemize}
+\item The correlations between "OPBPC", "OPRC","OPSLAKE" and "BSAAM" are very high.
+\item The correlations between year and other variables are low.
+\item The correlations between "APMAM", "APSAB" and "APSLAKE" are high but not as high as the "O" variables.
+\end{itemize}
+
+__(8.3.2)__
+```{r}
+summary(ans <- powerTransform( as.matrix(water[ , 3:8]) ~ 1))
+```
+The transformation we found appear to achieve linearity. Since the p-value for the 
+LR-test is 0.48716.
+
+```{r}
+pairs(log(water[ , 3:9]))
+```
+
+__(8.3.3)__
+```{r}
+model3 <- lm(BSAAM ~ log(APMAM) + log(APSAB) + log(APSLAKE) + log(OPBPC) + log(OPRC) + log(OPSLAKE), water)
+invResPlot(model3)
+```
+The fitted line for $\hat{\lambda}$ have the smallest RSS, hence it is the best fit, which indicates that
+ the log transform is reasonable.
+ 
+ __(8.3.4)__
+```{r}
+model4 <- lm(formula = log(BSAAM) ~ log(APMAM) + log(APSAB) + log(APSLAKE) +
+log(OPBPC) + log(OPRC) + log(OPSLAKE), data = water)
+summary(model4)
+```
+The two negative estimates are log(APMAM) and log(APSAB). Both of them are not significant. The negative signs are caused 
+by the correlations of other included regressors.
+
+__(8.3.5)__
+```{r}
+water$geometricmean_O<-rowSums(water[,6:8])/3
+model5 <- lm(log(BSAAM) ~ log(APMAM) + log(APSAB) + log(APSLAKE) +geometricmean_O , water)
+anova(model5,model4)
+```
+Hence, we can reject that the three "O" log predictors are not equal ,i.e. they are equal.
+Which shows that the geometric mean of the snow depth represents its valley as well as do the individual measurements.
+```{r}
+water$geometricmean_A<-rowSums(water[,3:5])/3
+model6 <- lm(log(BSAAM) ~ log(OPBPC) + log(OPRC) + log(OPSLAKE) +geometricmean_A , water)
+anova(model6,model4)
+```
+Hence, we cannot reject that the three "A" log predictors are not equal. 
+Which shows that each "A" log predictor measurement is important.
